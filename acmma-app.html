@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ACMMA">
+<title>ACMMA</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root{--b:#1B4FD8;--b2:#1E40AF;--n:#1C1C1A;--g:#6B6860;--w:#FFFFFF;--f:#F8F7F4;--bl:#DBEAFE;--bord:#E2E0D9;--green:#16A34A;--orange:#D97706;--red:#DC2626;--nav-h:64px;--safe-bottom:env(safe-area-inset-bottom,0px);}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{font-family:'DM Sans',sans-serif;background:var(--f);color:var(--n);min-height:100vh;overflow-x:hidden;}
+  nav{position:fixed;bottom:0;left:0;right:0;height:calc(var(--nav-h) + var(--safe-bottom));background:var(--w);border-top:1px solid var(--bord);display:flex;align-items:flex-start;justify-content:space-around;padding-top:8px;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,.06);}
+  .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 10px;border-radius:12px;transition:all .2s;background:none;border:none;color:var(--g);font-family:'DM Sans',sans-serif;}
+  .nav-item.active{color:var(--b);}
+  .nav-icon{font-size:21px;line-height:1;}
+  .nav-label{font-size:10px;font-weight:500;}
+  .nav-dot{width:4px;height:4px;border-radius:50%;background:var(--b);margin-top:2px;}
+  .page{display:none;padding:0 0 calc(var(--nav-h) + var(--safe-bottom) + 16px);min-height:100vh;}
+  .page.active{display:block;}
+  .page-header{background:var(--n);padding:44px 18px 14px;position:sticky;top:0;z-index:50;}
+  .page-header .logo{font-family:'DM Serif Display',serif;font-size:16px;color:var(--w);display:flex;align-items:baseline;}
+  .logo span{color:var(--b);}
+  .page-header h1{font-family:'DM Serif Display',serif;font-size:20px;color:var(--w);font-weight:400;margin-top:2px;}
+  .page-header p{font-size:12px;color:#94A3B8;margin-top:1px;}
+  .section{padding:16px 14px 0;}
+  .section-title{font-size:11px;font-weight:600;color:var(--b);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+  .card{background:var(--w);border-radius:14px;border:1px solid var(--bord);padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+  .card-row{display:flex;justify-content:space-between;align-items:center;}
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .stat-card{background:var(--w);border-radius:14px;border:1px solid var(--bord);padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+  .stat-label{font-size:11px;color:var(--g);font-weight:500;margin-bottom:3px;}
+  .stat-value{font-family:'DM Serif Display',serif;font-size:26px;color:var(--n);}
+  .stat-value.blue{color:var(--b);}
+  .stat-value.green{color:var(--green);}
+  .stat-sub{font-size:11px;color:var(--g);margin-top:1px;}
+  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+  .badge-blue{background:var(--bl);color:var(--b);}
+  .badge-green{background:#DCFCE7;color:var(--green);}
+  .badge-orange{background:#FEF3C7;color:var(--orange);}
+  .badge-red{background:#FEE2E2;color:var(--red);}
+  .badge-gray{background:#F1F5F9;color:#64748B;}
+  .list-item{display:flex;align-items:center;gap:11px;padding:13px 14px;background:var(--w);border-bottom:1px solid var(--bord);cursor:pointer;transition:background .15s;}
+  .list-item:first-child{border-radius:14px 14px 0 0;}
+  .list-item:last-child{border-radius:0 0 14px 14px;border-bottom:none;}
+  .list-item:only-child{border-radius:14px;}
+  .list-item:active{background:var(--f);}
+  .list-item-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+  .icon-blue{background:var(--bl);}
+  .icon-green{background:#DCFCE7;}
+  .icon-orange{background:#FEF3C7;}
+  .icon-gray{background:#F1F5F9;}
+  .list-item-body{flex:1;min-width:0;}
+  .list-item-title{font-size:14px;font-weight:600;color:var(--n);}
+  .list-item-sub{font-size:11px;color:var(--g);margin-top:2px;}
+  .list-item-right{text-align:right;flex-shrink:0;}
+  .btn{display:block;width:100%;padding:15px;border-radius:13px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;transition:all .2s;}
+  .btn-primary{background:var(--b);color:var(--w);}
+  .btn-primary:active{background:var(--b2);transform:scale(.98);}
+  .btn-secondary{background:var(--f);color:var(--n);border:1px solid var(--bord);}
+  .btn-danger{background:#FEE2E2;color:var(--red);}
+  .btn-sm{padding:8px 14px;font-size:13px;width:auto;display:inline-block;}
+  .btn-row{display:flex;gap:10px;margin-top:8px;}
+  .btn-row .btn{flex:1;}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--w);border-radius:22px 22px 0 0;padding:18px 18px calc(18px + var(--safe-bottom));width:100%;max-height:92vh;overflow-y:auto;animation:slideUp .3s ease;}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal-handle{width:38px;height:4px;border-radius:2px;background:#D1D5DB;margin:0 auto 18px;}
+  .modal-title{font-family:'DM Serif Display',serif;font-size:21px;color:var(--n);margin-bottom:18px;}
+  .form-group{margin-bottom:14px;}
+  .form-label{font-size:11px;font-weight:600;color:var(--g);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.5px;}
+  .form-input,.form-select,.form-textarea{width:100%;padding:13px 14px;border:1.5px solid var(--bord);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--n);background:var(--f);outline:none;transition:border-color .2s;appearance:none;}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--b);background:var(--w);}
+  .form-textarea{min-height:75px;resize:none;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .empty-state{text-align:center;padding:36px 20px;color:var(--g);}
+  .empty-icon{font-size:36px;margin-bottom:10px;}
+  .empty-text{font-size:13px;}
+  .progress-bar{height:6px;border-radius:3px;background:var(--bl);overflow:hidden;margin-top:7px;}
+  .progress-fill{height:100%;border-radius:3px;background:var(--b);transition:width .4s;}
+  .finance-hero{background:var(--n);margin:0 14px;border-radius:18px;padding:20px;color:var(--w);position:relative;overflow:hidden;}
+  .finance-hero::before{content:'';position:absolute;right:-20px;top:-20px;width:110px;height:110px;border-radius:50%;background:var(--b);opacity:.15;}
+  .finance-hero-label{font-size:11px;color:#94A3B8;margin-bottom:3px;}
+  .finance-hero-value{font-family:'DM Serif Display',serif;font-size:36px;color:var(--w);}
+  .finance-hero-sub{font-size:11px;color:#64748B;margin-top:3px;}
+  .finance-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+  .finance-mini{background:rgba(255,255,255,.07);border-radius:11px;padding:11px;}
+  .finance-mini-label{font-size:10px;color:#94A3B8;}
+  .finance-mini-value{font-size:17px;font-weight:600;color:var(--w);margin-top:2px;}
+  .detail-overlay{display:none;position:fixed;inset:0;background:var(--f);z-index:150;overflow-y:auto;}
+  .detail-overlay.open{display:block;}
+  .detail-header{background:var(--n);padding:48px 18px 16px;display:flex;align-items:center;gap:11px;}
+  .back-btn{background:rgba(255,255,255,.1);border:none;border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--w);font-size:18px;flex-shrink:0;}
+  .detail-content{padding:16px 14px;}
+  .detail-row{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--bord);font-size:14px;}
+  .detail-row-label{color:var(--g);font-weight:500;}
+  .detail-row-value{color:var(--n);font-weight:600;text-align:right;}
+  .chip-group{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{padding:7px 14px;border-radius:20px;border:1.5px solid var(--bord);background:var(--f);color:var(--g);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
+  .chip.selected{background:var(--b);color:var(--w);border-color:var(--b);}
+  .alert{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:11px;font-size:13px;margin-bottom:10px;}
+  .alert-orange{background:#FEF3C7;color:var(--orange);}
+  .alert-red{background:#FEE2E2;color:var(--red);}
+  .mt-12{margin-top:12px;}
+  .fw6{font-weight:600;}
+  .text-b{color:var(--b);}
+  .text-g{color:var(--g);}
+  .text-sm{font-size:13px;}
+</style>
+</head>
+<body>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="page-header"><div class="logo">ACMM<span>A</span></div><h1 id="dash-greeting">Bonjour, Axel</h1><p id="dash-date"></p></div>
+  <div class="section" style="margin-top:16px;">
+    <div id="dash-alerts"></div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Clients actifs</div><div class="stat-value blue" id="stat-clients">0</div><div class="stat-sub">missions en cours</div></div>
+      <div class="stat-card"><div class="stat-label">CA ce mois</div><div class="stat-value green" id="stat-ca-mois">0 €</div><div class="stat-sub">encaissé</div></div>
+      <div class="stat-card"><div class="stat-label">Prospects</div><div class="stat-value" id="stat-prospects">0</div><div class="stat-sub">en pipeline</div></div>
+      <div class="stat-card"><div class="stat-label">CA total</div><div class="stat-value" id="stat-ca-total">0 €</div><div class="stat-sub">depuis le début</div></div>
+    </div>
+  </div>
+  <div class="section mt-12">
+    <div class="section-title">Objectifs</div>
+    <div class="card"><div class="card-row"><span class="text-sm fw6">CA annuel 2026</span><span class="text-sm text-b fw6" id="obj-annual-txt">0 / 24 000 €</span></div><div class="progress-bar" style="margin-top:7px;"><div class="progress-fill" id="obj-annual-bar" style="width:0%"></div></div></div>
+    <div class="card"><div class="card-row"><span class="text-sm fw6">Objectif mensuel</span><span class="text-sm text-b fw6" id="obj-monthly-txt">0 / 2 000 €</span></div><div class="progress-bar" style="margin-top:7px;"><div class="progress-fill" id="obj-monthly-bar" style="width:0%"></div></div></div>
+  </div>
+  <div class="section mt-12"><div class="section-title">Prochains événements</div><div id="dash-agenda-list"><div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">Aucun événement à venir</div></div></div></div>
+  <div class="section mt-12"><div class="section-title">Derniers clients</div><div id="dash-clients-list"><div class="empty-state"><div class="empty-icon">🏭</div><div class="empty-text">Aucun client pour l'instant</div></div></div></div>
+</div>
+
+<!-- PROSPECTS -->
+<div class="page" id="page-prospects">
+  <div class="page-header"><div class="logo">ACMM<span>A</span></div><h1>Prospects</h1><p>Pipeline commercial</p></div>
+  <div class="section" style="margin-top:16px;">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Total pipeline</div><div class="stat-value blue" id="p-total">0</div></div>
+      <div class="stat-card"><div class="stat-label">RDV à faire</div><div class="stat-value" id="p-rdv">0</div></div>
+    </div>
+  </div>
+  <div class="section mt-12">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div class="section-title" style="margin-bottom:0;">Pipeline</div><button class="btn btn-primary btn-sm" onclick="openModal('modal-prospect')">+ Ajouter</button></div>
+    <div class="chip-group" style="margin-bottom:14px;">
+      <div class="chip selected" onclick="filterProspects('tous',this)">Tous</div>
+      <div class="chip" onclick="filterProspects('À contacter',this)">À contacter</div>
+      <div class="chip" onclick="filterProspects('RDV pris',this)">RDV pris</div>
+      <div class="chip" onclick="filterProspects('Devis envoyé',this)">Devis</div>
+      <div class="chip" onclick="filterProspects('Signé',this)">Signé</div>
+    </div>
+    <div id="prospects-list"></div>
+  </div>
+</div>
+
+<!-- CLIENTS -->
+<div class="page" id="page-clients">
+  <div class="page-header"><div class="logo">ACMM<span>A</span></div><h1>Clients</h1><p>Missions & suivi</p></div>
+  <div class="section" style="margin-top:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div class="section-title" style="margin-bottom:0;">Clients actifs</div><button class="btn btn-primary btn-sm" onclick="openModal('modal-client')">+ Ajouter</button></div>
+    <div id="clients-list"></div>
+  </div>
+  <div class="section mt-12"><div class="section-title">Rapports mensuels</div><div id="rapports-list"></div></div>
+</div>
+
+<!-- AGENDA -->
+<div class="page" id="page-agenda">
+  <div class="page-header"><div class="logo">ACMM<span>A</span></div><h1>Agenda</h1><p>Rendez-vous & tâches</p></div>
+  <div class="section" style="margin-top:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div class="section-title" style="margin-bottom:0;">Événements</div><button class="btn btn-primary btn-sm" onclick="openModal('modal-agenda')">+ Ajouter</button></div>
+    <div id="agenda-list"></div>
+  </div>
+</div>
+
+<!-- FINANCES -->
+<div class="page" id="page-finances">
+  <div class="page-header"><div class="logo">ACMM<span>A</span></div><h1>Finances</h1><p>Devis · Factures · CA</p></div>
+  <div class="section" style="margin-top:16px;">
+    <div class="finance-hero">
+      <div class="finance-hero-label">CA total encaissé</div>
+      <div class="finance-hero-value" id="fin-ca-total">0 €</div>
+      <div class="finance-hero-sub">depuis le lancement</div>
+      <div class="finance-mini-grid">
+        <div class="finance-mini"><div class="finance-mini-label">Ce mois</div><div class="finance-mini-value" id="fin-ca-mois">0 €</div></div>
+        <div class="finance-mini"><div class="finance-mini-label">En attente</div><div class="finance-mini-value" id="fin-ca-attente">0 €</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="section mt-12">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div class="section-title" style="margin-bottom:0;">Factures & Devis</div><button class="btn btn-primary btn-sm" onclick="openModal('modal-facture')">+ Ajouter</button></div>
+    <div id="factures-list"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <button class="nav-item active" onclick="goTo('dashboard',this)"><span class="nav-icon">⊞</span><span class="nav-label">Accueil</span><div class="nav-dot"></div></button>
+  <button class="nav-item" onclick="goTo('prospects',this)"><span class="nav-icon">🎯</span><span class="nav-label">Prospects</span></button>
+  <button class="nav-item" onclick="goTo('clients',this)"><span class="nav-icon">🏭</span><span class="nav-label">Clients</span></button>
+  <button class="nav-item" onclick="goTo('agenda',this)"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></button>
+  <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-icon">💶</span><span class="nav-label">Finances</span></button>
+</nav>
+
+<!-- MODAL PROSPECT -->
+<div class="modal-overlay" id="modal-prospect" onclick="closeModalOutside(event,'modal-prospect')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="mp-title">Nouveau prospect</div>
+    <input type="hidden" id="p-edit-id">
+    <div class="form-group"><label class="form-label">Entreprise *</label><input class="form-input" id="p-entreprise" placeholder="Nom de la PME" autocomplete="off"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Contact</label><input class="form-input" id="p-contact" placeholder="Prénom NOM"></div>
+      <div class="form-group"><label class="form-label">Secteur</label><input class="form-input" id="p-secteur" placeholder="Plasturgie…"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="p-tel" placeholder="06 XX XX XX XX" type="tel"></div>
+    <div class="form-group"><label class="form-label">Statut</label>
+      <select class="form-select" id="p-statut"><option>À contacter</option><option>Contact effectué</option><option>RDV pris</option><option>Audit réalisé</option><option>Devis envoyé</option><option>Signé</option><option>Perdu</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Priorité</label>
+      <div class="chip-group" id="p-priorite-chips">
+        <div class="chip selected" onclick="selectChip(this,'p-priorite')">P1 — Haute</div>
+        <div class="chip" onclick="selectChip(this,'p-priorite')">P2 — Normale</div>
+        <div class="chip" onclick="selectChip(this,'p-priorite')">P3 — Basse</div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Date de relance</label><input class="form-input" id="p-relance" type="date"></div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="p-notes" placeholder="Contexte, enjeux…"></textarea></div>
+    <button class="btn btn-primary" onclick="saveProspect()">Enregistrer</button>
+    <div style="height:10px;"></div>
+    <button class="btn btn-secondary" onclick="closeModal('modal-prospect')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL CLIENT -->
+<div class="modal-overlay" id="modal-client" onclick="closeModalOutside(event,'modal-client')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="mc-title">Nouveau client</div>
+    <input type="hidden" id="c-edit-id">
+    <div class="form-group"><label class="form-label">Entreprise *</label><input class="form-input" id="c-entreprise" placeholder="Nom de l'entreprise" autocomplete="off"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Contact</label><input class="form-input" id="c-contact" placeholder="Prénom NOM"></div>
+      <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="c-tel" type="tel" placeholder="06…"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Grade / Offre</label>
+      <div class="chip-group" id="c-grade-chips">
+        <div class="chip selected" onclick="selectChip(this,'c-grade')">Audit</div>
+        <div class="chip" onclick="selectChip(this,'c-grade')">Grade 1</div>
+        <div class="chip" onclick="selectChip(this,'c-grade')">Grade 2</div>
+        <div class="chip" onclick="selectChip(this,'c-grade')">Grade 3</div>
+        <div class="chip" onclick="selectChip(this,'c-grade')">Suivi mensuel</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Montant HT (€)</label><input class="form-input" id="c-montant" type="number" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">Date début</label><input class="form-input" id="c-debut" type="date"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Statut mission</label>
+      <select class="form-select" id="c-statut"><option>En cours</option><option>Suivi mensuel</option><option>Terminée</option><option>En pause</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Rapport mensuel</label>
+      <select class="form-select" id="c-rapport"><option value="non">Non inclus</option><option value="oui">Inclus (envoi avant le 5)</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="c-notes" placeholder="Équipements, contexte…"></textarea></div>
+    <button class="btn btn-primary" onclick="saveClient()">Enregistrer</button>
+    <div style="height:10px;"></div>
+    <button class="btn btn-secondary" onclick="closeModal('modal-client')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL AGENDA -->
+<div class="modal-overlay" id="modal-agenda" onclick="closeModalOutside(event,'modal-agenda')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nouvel événement</div>
+    <div class="form-group"><label class="form-label">Titre *</label><input class="form-input" id="a-titre" placeholder="RDV client, audit, rapport…" autocomplete="off"></div>
+    <div class="form-group"><label class="form-label">Type</label>
+      <div class="chip-group" id="a-type-chips">
+        <div class="chip selected" onclick="selectChip(this,'a-type')">📞 Appel</div>
+        <div class="chip" onclick="selectChip(this,'a-type')">🏭 Visite site</div>
+        <div class="chip" onclick="selectChip(this,'a-type')">📋 Rapport</div>
+        <div class="chip" onclick="selectChip(this,'a-type')">✅ Tâche</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Date *</label><input class="form-input" id="a-date" type="date"></div>
+      <div class="form-group"><label class="form-label">Heure</label><input class="form-input" id="a-heure" type="time"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Client / Prospect</label><input class="form-input" id="a-client" placeholder="Nom de l'entreprise" autocomplete="off"></div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="a-notes" placeholder="Détails, adresse…"></textarea></div>
+    <button class="btn btn-primary" onclick="saveAgenda()">Enregistrer</button>
+    <div style="height:10px;"></div>
+    <button class="btn btn-secondary" onclick="closeModal('modal-agenda')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL FACTURE -->
+<div class="modal-overlay" id="modal-facture" onclick="closeModalOutside(event,'modal-facture')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="mf-title">Facture / Devis</div>
+    <input type="hidden" id="f-edit-id">
+    <div class="form-group"><label class="form-label">Type</label>
+      <div class="chip-group" id="f-type-chips">
+        <div class="chip selected" onclick="selectChip(this,'f-type')">Facture</div>
+        <div class="chip" onclick="selectChip(this,'f-type')">Devis</div>
+        <div class="chip" onclick="selectChip(this,'f-type')">Acompte</div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Client *</label><input class="form-input" id="f-client" placeholder="Nom de l'entreprise" autocomplete="off"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Montant HT (€) *</label><input class="form-input" id="f-montant" type="number" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="f-date" type="date"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Statut</label>
+      <select class="form-select" id="f-statut"><option>En attente</option><option>Payée</option><option>Relance envoyée</option><option>Annulée</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">N° document</label><input class="form-input" id="f-numero" placeholder="FAC-2026-001"></div>
+    <button class="btn btn-primary" onclick="saveFacture()">Enregistrer</button>
+    <div style="height:10px;"></div>
+    <button class="btn btn-secondary" onclick="closeModal('modal-facture')">Annuler</button>
+  </div>
+</div>
+
+<!-- DETAIL PROSPECT -->
+<div class="detail-overlay" id="detail-prospect">
+  <div class="detail-header">
+    <button class="back-btn" onclick="closeDetail('detail-prospect')">&#8249;</button>
+    <div><div style="font-family:'DM Serif Display',serif;font-size:19px;color:#fff;" id="dp-title">—</div><div style="font-size:12px;color:#94A3B8;margin-top:2px;" id="dp-statut-label">—</div></div>
+  </div>
+  <div class="detail-content" id="dp-content"></div>
+</div>
+
+<!-- DETAIL CLIENT -->
+<div class="detail-overlay" id="detail-client">
+  <div class="detail-header">
+    <button class="back-btn" onclick="closeDetail('detail-client')">&#8249;</button>
+    <div><div style="font-family:'DM Serif Display',serif;font-size:19px;color:#fff;" id="dc-title">—</div><div style="font-size:12px;color:#94A3B8;margin-top:2px;" id="dc-grade-label">—</div></div>
+  </div>
+  <div class="detail-content" id="dc-content"></div>
+</div>
+
+<script>
+function loadData(){try{const s=localStorage.getItem('acmma_data');return s?JSON.parse(s):{prospects:[],clients:[],agenda:[],factures:[]};}catch(e){return{prospects:[],clients:[],agenda:[],factures:[]};}}
+function saveData(){try{localStorage.setItem('acmma_data',JSON.stringify(data));}catch(e){}}
+let data=loadData();
+const chipValues={};
+function selectChip(el,group){el.closest('.chip-group').querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');chipValues[group]=el.textContent.trim();}
+function getChip(group,def){return chipValues[group]||def;}
+function setChipGroup(groupId,value){document.querySelectorAll('#'+groupId+' .chip').forEach(c=>{c.classList.remove('selected');if(c.textContent.trim()===value)c.classList.add('selected');});chipValues[groupId.replace('-chips','').split('-').slice(-1)[0]]=value;}
+
+function goTo(page,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>{b.classList.remove('active');const d=b.querySelector('.nav-dot');if(d)d.remove();});
+  document.getElementById('page-'+page).classList.add('active');
+  btn.classList.add('active');const dot=document.createElement('div');dot.className='nav-dot';btn.appendChild(dot);
+  renderAll();
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function closeModalOutside(e,id){if(e.target===document.getElementById(id))closeModal(id);}
+function openDetail(id){document.getElementById(id).classList.add('open');}
+function closeDetail(id){document.getElementById(id).classList.remove('open');}
+
+function statusBadge(s){const m={'À contacter':'badge-gray','Contact effectué':'badge-blue','RDV pris':'badge-blue','Audit réalisé':'badge-orange','Devis envoyé':'badge-orange','Signé':'badge-green','Perdu':'badge-red','En cours':'badge-blue','Suivi mensuel':'badge-green','Terminée':'badge-gray','En pause':'badge-orange','Payée':'badge-green','En attente':'badge-orange','Relance envoyée':'badge-red','Annulée':'badge-gray'};return'<span class="badge '+(m[s]||'badge-gray')+'">'+s+'</span>';}
+function prioriteIcon(p){return p&&p.includes('P1')?'🔴':p&&p.includes('P2')?'🟡':'🟢';}
+function fmtDate(d){if(!d)return'—';return new Date(d+'T00:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});}
+function fmtMoney(n){return new Intl.NumberFormat('fr-FR').format(n||0)+' €';}
+const today=new Date().toISOString().slice(0,10);
+const thisMonth=new Date().toISOString().slice(0,7);
+const thisYear=new Date().getFullYear().toString();
+
+function saveProspect(){
+  const ent=document.getElementById('p-entreprise').value.trim();
+  if(!ent){alert('Entreprise obligatoire');return;}
+  const editId=document.getElementById('p-edit-id').value;
+  const existing=editId?data.prospects.find(p=>p.id==editId):null;
+  const obj={id:editId?Number(editId):Date.now(),entreprise:ent,contact:document.getElementById('p-contact').value.trim(),secteur:document.getElementById('p-secteur').value.trim(),tel:document.getElementById('p-tel').value.trim(),statut:document.getElementById('p-statut').value,priorite:getChip('p-priorite','P1 — Haute'),relance:document.getElementById('p-relance').value,notes:document.getElementById('p-notes').value.trim(),date:existing?existing.date:new Date().toISOString()};
+  if(editId){const i=data.prospects.findIndex(p=>p.id==editId);if(i>-1)data.prospects[i]=obj;}else data.prospects.push(obj);
+  saveData();closeModal('modal-prospect');
+  ['p-entreprise','p-contact','p-secteur','p-tel','p-notes','p-relance'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('p-edit-id').value='';document.getElementById('mp-title').textContent='Nouveau prospect';
+  renderAll();
+}
+
+function saveClient(){
+  var ent = document.getElementById('c-entreprise').value.trim();
+  if(!ent){ alert('Entreprise obligatoire'); return; }
+  var editId = document.getElementById('c-edit-id').value;
+  var grade = document.querySelector('#c-grade-chips .chip.selected');
+  var obj = {
+    id: editId ? Number(editId) : Date.now(),
+    entreprise: ent,
+    contact: document.getElementById('c-contact').value.trim(),
+    tel: document.getElementById('c-tel').value.trim(),
+    grade: grade ? grade.textContent.trim() : 'Audit',
+    montant: parseFloat(document.getElementById('c-montant').value) || 0,
+    debut: document.getElementById('c-debut').value,
+    statut: document.getElementById('c-statut').value,
+    rapport: document.getElementById('c-rapport').value,
+    notes: document.getElementById('c-notes').value.trim(),
+    date: new Date().toISOString()
+  };
+  if(editId){
+    var idx = data.clients.findIndex(function(c){ return c.id == editId; });
+    if(idx > -1) data.clients[idx] = obj;
+  } else {
+    data.clients.push(obj);
+  }
+  saveData();
+  closeModal('modal-client');
+  ['c-entreprise','c-contact','c-tel','c-montant','c-debut','c-notes'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('c-edit-id').value = '';
+  document.getElementById('mc-title').textContent = 'Nouveau client';
+  renderClients();
+  renderDashboard();
+}
+
+function saveAgenda(){
+  const titre=document.getElementById('a-titre').value.trim();
+  const date=document.getElementById('a-date').value;
+  if(!titre||!date){alert('Titre et date obligatoires');return;}
+  data.agenda.push({id:Date.now(),titre,type:getChip('a-type','📞 Appel'),date,heure:document.getElementById('a-heure').value,client:document.getElementById('a-client').value.trim(),notes:document.getElementById('a-notes').value.trim()});
+  data.agenda.sort((a,b)=>a.date.localeCompare(b.date));
+  saveData();closeModal('modal-agenda');
+  ['a-titre','a-date','a-heure','a-client','a-notes'].forEach(id=>document.getElementById(id).value='');
+  renderAll();
+}
+
+function saveFacture(){
+  const client=document.getElementById('f-client').value.trim();
+  const montant=parseFloat(document.getElementById('f-montant').value)||0;
+  if(!client||!montant){alert('Client et montant obligatoires');return;}
+  const editId=document.getElementById('f-edit-id').value;
+  const obj={id:editId?Number(editId):Date.now(),type:getChip('f-type','Facture'),client,montant,date:document.getElementById('f-date').value||today,statut:document.getElementById('f-statut').value,numero:document.getElementById('f-numero').value.trim()};
+  if(editId){const i=data.factures.findIndex(f=>f.id==editId);if(i>-1)data.factures[i]=obj;}else data.factures.push(obj);
+  saveData();closeModal('modal-facture');
+  ['f-client','f-montant','f-date','f-numero'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-edit-id').value='';document.getElementById('mf-title').textContent='Facture / Devis';
+  renderAll();
+}
+
+function editProspect(id){
+  const p=data.prospects.find(x=>x.id==id);if(!p)return;
+  document.getElementById('mp-title').textContent='Modifier prospect';
+  document.getElementById('p-edit-id').value=p.id;
+  document.getElementById('p-entreprise').value=p.entreprise||'';
+  document.getElementById('p-contact').value=p.contact||'';
+  document.getElementById('p-secteur').value=p.secteur||'';
+  document.getElementById('p-tel').value=p.tel||'';
+  document.getElementById('p-statut').value=p.statut;
+  document.getElementById('p-relance').value=p.relance||'';
+  document.getElementById('p-notes').value=p.notes||'';
+  setChipGroup('p-priorite-chips',p.priorite||'P1 — Haute');
+  closeDetail('detail-prospect');openModal('modal-prospect');
+}
+
+function editClient(id){
+  const c=data.clients.find(x=>x.id==id);if(!c)return;
+  document.getElementById('mc-title').textContent='Modifier client';
+  document.getElementById('c-edit-id').value=c.id;
+  document.getElementById('c-entreprise').value=c.entreprise||'';
+  document.getElementById('c-contact').value=c.contact||'';
+  document.getElementById('c-tel').value=c.tel||'';
+  document.getElementById('c-montant').value=c.montant||'';
+  document.getElementById('c-debut').value=c.debut||'';
+  document.getElementById('c-statut').value=c.statut;
+  document.getElementById('c-rapport').value=c.rapport||'non';
+  document.getElementById('c-notes').value=c.notes||'';
+  setChipGroup('c-grade-chips',c.grade||'Audit');
+  closeDetail('detail-client');openModal('modal-client');
+}
+
+function editFacture(id){
+  const f=data.factures.find(x=>x.id==id);if(!f)return;
+  document.getElementById('mf-title').textContent='Modifier';
+  document.getElementById('f-edit-id').value=f.id;
+  document.getElementById('f-client').value=f.client||'';
+  document.getElementById('f-montant').value=f.montant||'';
+  document.getElementById('f-date').value=f.date||'';
+  document.getElementById('f-statut').value=f.statut;
+  document.getElementById('f-numero').value=f.numero||'';
+  setChipGroup('f-type-chips',f.type||'Facture');
+  openModal('modal-facture');
+}
+
+function deleteProspect(id){if(confirm('Supprimer ce prospect ?')){data.prospects=data.prospects.filter(p=>p.id!=id);saveData();closeDetail('detail-prospect');renderAll();}}
+function deleteClient(id){if(confirm('Supprimer ce client ?')){data.clients=data.clients.filter(c=>c.id!=id);saveData();closeDetail('detail-client');renderAll();}}
+function deleteAgenda(id){if(confirm('Supprimer ?')){data.agenda=data.agenda.filter(a=>a.id!=id);saveData();renderAll();}}
+function deleteFacture(id){if(confirm('Supprimer ?')){data.factures=data.factures.filter(f=>f.id!=id);saveData();renderAll();}}
+
+let prospectFilter='tous';
+function filterProspects(f,el){prospectFilter=f;document.querySelectorAll('#page-prospects .chip-group .chip').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');renderProspects();}
+function renderAll(){try{renderDashboard();}catch(e){console.error('dash',e);}try{renderProspects();}catch(e){console.error('pros',e);}try{renderClients();}catch(e){console.error('clients',e);}try{renderAgenda();}catch(e){console.error('agenda',e);}try{renderFinances();}catch(e){console.error('fin',e);}}
+
+function renderDashboard(){
+  const now=new Date();const h=now.getHours();
+  document.getElementById('dash-greeting').textContent=(h<12?'Bonjour':h<18?'Bon après-midi':'Bonsoir')+', Axel';
+  document.getElementById('dash-date').textContent=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const actifs=data.clients.filter(c=>c.statut==='En cours'||c.statut==='Suivi mensuel').length;
+  document.getElementById('stat-clients').textContent=actifs;
+  document.getElementById('stat-prospects').textContent=data.prospects.filter(p=>p.statut!=='Signé'&&p.statut!=='Perdu').length;
+  const payees=data.factures.filter(f=>f.statut==='Payée');
+  const caMois=payees.filter(f=>f.date.slice(0,7)===thisMonth).reduce((s,f)=>s+f.montant,0);
+  const caTotal=payees.reduce((s,f)=>s+f.montant,0);
+  const caAnnuel=payees.filter(f=>f.date.slice(0,4)===thisYear).reduce((s,f)=>s+f.montant,0);
+  document.getElementById('stat-ca-mois').textContent=fmtMoney(caMois);
+  document.getElementById('stat-ca-total').textContent=fmtMoney(caTotal);
+  const pa=Math.min(100,Math.round(caAnnuel/24000*100));
+  document.getElementById('obj-annual-txt').textContent=fmtMoney(caAnnuel)+' / 24 000 €';
+  document.getElementById('obj-annual-bar').style.width=pa+'%';
+  const pm=Math.min(100,Math.round(caMois/2000*100));
+  document.getElementById('obj-monthly-txt').textContent=fmtMoney(caMois)+' / 2 000 €';
+  document.getElementById('obj-monthly-bar').style.width=pm+'%';
+  const relances=data.prospects.filter(p=>p.relance&&p.relance<=today&&p.statut!=='Signé'&&p.statut!=='Perdu');
+  const rr=data.clients.filter(c=>c.rapport==='oui'&&c.statut!=='Terminée'&&new Date().getDate()>5);
+  let alerts='';
+  if(relances.length>0)alerts+='<div class="alert alert-orange"><span>⚡</span><span>'+relances.length+' relance'+(relances.length>1?'s':'')+' en retard</span></div>';
+  if(rr.length>0)alerts+='<div class="alert alert-red"><span>📋</span><span>'+rr.length+' rapport'+(rr.length>1?'s':'')+' mensuel'+(rr.length>1?'s':'')+' à envoyer</span></div>';
+  document.getElementById('dash-alerts').innerHTML=alerts;
+  const upcoming=data.agenda.filter(a=>a.date>=today).slice(0,3);
+  document.getElementById('dash-agenda-list').innerHTML=upcoming.length===0?'<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">Aucun événement à venir</div></div>':upcoming.map(a=>'<div class="list-item"><div class="list-item-icon icon-blue">'+a.type.split(' ')[0]+'</div><div class="list-item-body"><div class="list-item-title">'+a.titre+'</div><div class="list-item-sub">'+(a.client||'—')+' · '+fmtDate(a.date)+(a.heure?' à '+a.heure:'')+'</div></div></div>').join('');
+  const lc=[...data.clients].reverse().slice(0,3);
+  document.getElementById('dash-clients-list').innerHTML=lc.length===0?'<div class="empty-state"><div class="empty-icon">🏭</div><div class="empty-text">Aucun client pour l\'instant</div></div>':lc.map(c=>'<div class="list-item"><div class="list-item-icon icon-blue">🏭</div><div class="list-item-body"><div class="list-item-title">'+c.entreprise+'</div><div class="list-item-sub">'+c.grade+' · '+fmtMoney(c.montant)+'</div></div><div class="list-item-right">'+statusBadge(c.statut)+'</div></div>').join('');
+}
+
+function renderProspects(){
+  const filtered=prospectFilter==='tous'?data.prospects:data.prospects.filter(p=>p.statut===prospectFilter);
+  document.getElementById('p-total').textContent=data.prospects.filter(p=>p.statut!=='Signé'&&p.statut!=='Perdu').length;
+  document.getElementById('p-rdv').textContent=data.prospects.filter(p=>p.statut==='RDV pris').length;
+  const list=document.getElementById('prospects-list');
+  list.innerHTML=filtered.length===0?'<div class="empty-state"><div class="empty-icon">🎯</div><div class="empty-text">Aucun prospect</div></div>':filtered.map(p=>'<div class="list-item" onclick="showProspect('+p.id+')"><div class="list-item-icon icon-'+(p.statut==='Signé'?'green':p.statut==='Perdu'?'gray':'blue')+'">'+prioriteIcon(p.priorite)+'</div><div class="list-item-body"><div class="list-item-title">'+p.entreprise+'</div><div class="list-item-sub">'+(p.contact||'—')+(p.secteur?' · '+p.secteur:'')+'</div></div><div class="list-item-right">'+statusBadge(p.statut)+'</div></div>').join('');
+}
+
+function showProspect(id){
+  const p=data.prospects.find(x=>x.id==id);if(!p)return;
+  document.getElementById('dp-title').textContent=p.entreprise;
+  document.getElementById('dp-statut-label').textContent=p.statut+' · '+(p.priorite||'');
+  document.getElementById('dp-content').innerHTML=(p.relance&&p.relance<=today?'<div class="alert alert-orange"><span>⚡</span><span>Relance en retard — prévue le '+fmtDate(p.relance)+'</span></div>':'')+'<div class="detail-row"><span class="detail-row-label">Entreprise</span><span class="detail-row-value">'+p.entreprise+'</span></div><div class="detail-row"><span class="detail-row-label">Contact</span><span class="detail-row-value">'+(p.contact||'—')+'</span></div><div class="detail-row"><span class="detail-row-label">Téléphone</span><span class="detail-row-value">'+(p.tel?'<a href="tel:'+p.tel+'" style="color:var(--b)">'+p.tel+'</a>':'—')+'</span></div><div class="detail-row"><span class="detail-row-label">Secteur</span><span class="detail-row-value">'+(p.secteur||'—')+'</span></div><div class="detail-row"><span class="detail-row-label">Statut</span><span class="detail-row-value">'+statusBadge(p.statut)+'</span></div><div class="detail-row"><span class="detail-row-label">Priorité</span><span class="detail-row-value">'+(p.priorite||'—')+'</span></div><div class="detail-row"><span class="detail-row-label">Relance</span><span class="detail-row-value">'+fmtDate(p.relance)+'</span></div>'+(p.notes?'<div class="card" style="margin-top:12px;"><div class="section-title">Notes</div><div style="font-size:13px;margin-top:8px;line-height:1.6;">'+p.notes+'</div></div>':'')+'<div style="height:16px;"></div><div class="btn-row"><button class="btn btn-secondary" onclick="editProspect('+p.id+')">✏️ Modifier</button><button class="btn btn-danger" onclick="deleteProspect('+p.id+')">🗑 Supprimer</button></div>';
+  openDetail('detail-prospect');
+}
+
+function renderClients(){
+  var actifs = data.clients.filter(function(c){ return c.statut !== 'Terminée'; });
+  var list = document.getElementById('clients-list');
+  if(!list){ console.error('clients-list introuvable'); return; }
+  if(actifs.length === 0){
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🏭</div><div class="empty-text">Aucun client actif</div></div>';
+  } else {
+    var html = '';
+    actifs.forEach(function(c){
+      html += '<div class="list-item" onclick="showClient(' + c.id + ')">';
+      html += '<div class="list-item-icon icon-blue">🏭</div>';
+      html += '<div class="list-item-body">';
+      html += '<div class="list-item-title">' + c.entreprise + '</div>';
+      html += '<div class="list-item-sub">' + (c.grade||'') + ' · ' + fmtMoney(c.montant) + '</div>';
+      html += '</div>';
+      html += '<div class="list-item-right">' + statusBadge(c.statut) + '</div>';
+      html += '</div>';
+    });
+    list.innerHTML = html;
+  }
+  var ar = data.clients.filter(function(c){ return c.rapport === 'oui' && c.statut !== 'Terminée'; });
+  var rapList = document.getElementById('rapports-list');
+  if(!rapList) return;
+  if(ar.length === 0){
+    rapList.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Aucun rapport mensuel</div></div>';
+  } else {
+    var day = new Date().getDate();
+    var rhtml = '';
+    ar.forEach(function(c){
+      var late = day > 5;
+      rhtml += '<div class="list-item">';
+      rhtml += '<div class="list-item-icon icon-' + (late?'orange':'green') + '">📋</div>';
+      rhtml += '<div class="list-item-body"><div class="list-item-title">' + c.entreprise + '</div>';
+      rhtml += '<div class="list-item-sub">À envoyer avant le 5 du mois</div></div>';
+      rhtml += '<div class="list-item-right"><span class="badge ' + (late?'badge-orange':'badge-green') + '">' + (late?'En retard':'Ce mois') + '</span></div>';
+      rhtml += '</div>';
+    });
+    rapList.innerHTML = rhtml;
+  }
+}
+
+function showClient(id){
+  const c=data.clients.find(x=>x.id==id);if(!c)return;
+  document.getElementById('dc-title').textContent=c.entreprise;
+  document.getElementById('dc-grade-label').textContent=c.grade+' · '+fmtMoney(c.montant);
+  document.getElementById('dc-content').innerHTML='<div class="detail-row"><span class="detail-row-label">Entreprise</span><span class="detail-row-value">'+c.entreprise+'</span></div><div class="detail-row"><span class="detail-row-label">Contact</span><span class="detail-row-value">'+(c.contact||'—')+'</span></div><div class="detail-row"><span class="detail-row-label">Téléphone</span><span class="detail-row-value">'+(c.tel?'<a href="tel:'+c.tel+'" style="color:var(--b)">'+c.tel+'</a>':'—')+'</span></div><div class="detail-row"><span class="detail-row-label">Offre</span><span class="detail-row-value">'+c.grade+'</span></div><div class="detail-row"><span class="detail-row-label">Montant HT</span><span class="detail-row-value" style="color:var(--b)">'+fmtMoney(c.montant)+'</span></div><div class="detail-row"><span class="detail-row-label">Début mission</span><span class="detail-row-value">'+fmtDate(c.debut)+'</span></div><div class="detail-row"><span class="detail-row-label">Statut</span><span class="detail-row-value">'+statusBadge(c.statut)+'</span></div><div class="detail-row"><span class="detail-row-label">Rapport mensuel</span><span class="detail-row-value">'+(c.rapport==='oui'?'✅ Inclus':'—')+'</span></div>'+(c.notes?'<div class="card" style="margin-top:12px;"><div class="section-title">Notes</div><div style="font-size:13px;margin-top:8px;line-height:1.6;">'+c.notes+'</div></div>':'')+'<div style="height:16px;"></div><div class="btn-row"><button class="btn btn-secondary" onclick="editClient('+c.id+')">✏️ Modifier</button><button class="btn btn-danger" onclick="deleteClient('+c.id+')">🗑 Supprimer</button></div>';
+  openDetail('detail-client');
+}
+
+function renderAgenda(){
+  const all=[...data.agenda.filter(a=>a.date>=today),...data.agenda.filter(a=>a.date<today)];
+  if(all.length===0){document.getElementById('agenda-list').innerHTML='<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">Aucun événement</div></div>';return;}
+  let html='';let lastDate='';
+  all.forEach(a=>{
+    if(a.date!==lastDate){const ip=a.date<today;const it=a.date===today;html+='<div style="font-size:11px;font-weight:600;color:'+(ip?'var(--g)':it?'var(--red)':'var(--b)')+';text-transform:uppercase;letter-spacing:1px;padding:8px 14px 4px;">'+(it?'⬡ AUJOURD\'HUI':fmtDate(a.date).toUpperCase())+'</div>';lastDate=a.date;}
+    html+='<div class="list-item" style="'+(a.date<today?'opacity:.5':'')+'"><div class="list-item-icon icon-blue">'+a.type.split(' ')[0]+'</div><div class="list-item-body"><div class="list-item-title">'+a.titre+'</div><div class="list-item-sub">'+(a.client||'—')+(a.heure?' à '+a.heure:'')+'</div></div><button onclick="deleteAgenda('+a.id+')" style="background:none;border:none;font-size:20px;color:var(--g);cursor:pointer;padding:4px 8px;">×</button></div>';
+  });
+  document.getElementById('agenda-list').innerHTML=html;
+}
+
+function renderFinances(){
+  const payees=data.factures.filter(f=>f.statut==='Payée');
+  const att=data.factures.filter(f=>f.statut==='En attente'||f.statut==='Relance envoyée');
+  const caTotal=payees.reduce((s,f)=>s+f.montant,0);
+  const caMois=payees.filter(f=>f.date.slice(0,7)===thisMonth).reduce((s,f)=>s+f.montant,0);
+  document.getElementById('fin-ca-total').textContent=fmtMoney(caTotal);
+  document.getElementById('fin-ca-mois').textContent=fmtMoney(caMois);
+  document.getElementById('fin-ca-attente').textContent=fmtMoney(att.reduce((s,f)=>s+f.montant,0));
+  const list=document.getElementById('factures-list');
+  if(data.factures.length===0){list.innerHTML='<div class="empty-state"><div class="empty-icon">💶</div><div class="empty-text">Aucune facture</div></div>';return;}
+  list.innerHTML=[...data.factures].sort((a,b)=>b.date.localeCompare(a.date)).map(f=>'<div class="list-item"><div class="list-item-icon icon-'+(f.statut==='Payée'?'green':f.statut==='Annulée'?'gray':'orange')+'">'+(f.type==='Facture'?'🧾':f.type==='Devis'?'📄':'💰')+'</div><div class="list-item-body"><div class="list-item-title">'+f.client+(f.numero?' · '+f.numero:'')+'</div><div class="list-item-sub">'+f.type+' · '+fmtDate(f.date)+'</div></div><div class="list-item-right"><div class="fw6" style="color:var(--b)">'+fmtMoney(f.montant)+'</div><div style="margin-top:4px;display:flex;gap:6px;align-items:center;">'+statusBadge(f.statut)+'<button onclick="editFacture('+f.id+')" style="background:none;border:none;font-size:15px;cursor:pointer;">✏️</button><button onclick="deleteFacture('+f.id+')" style="background:none;border:none;font-size:15px;cursor:pointer;color:var(--red);">🗑</button></div></div></div>').join('');
+}
+
+renderAll();
+</script>
+</body>
+</html>
